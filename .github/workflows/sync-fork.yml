@@ -30,11 +30,8 @@ jobs:
           git reset --hard upstream/master
           git push -f origin sync/upstream-${{ github.run_id }}
 
-      - name: Run tests (Lean CLI or unit tests)
-        run: |
-          # Example: run unit tests / docker smoke test
-          ./build_and_test.sh   # implement according to your repo
-
+      # Tests removed: this repository doesn't provide a build_and_test.sh script
+      # If you want tests later, re-add a step here that runs your repository's test command(s).
       - name: Create PR
         uses: peter-evans/create-pull-request@v5
         with:
