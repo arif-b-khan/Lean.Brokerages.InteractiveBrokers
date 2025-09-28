@@ -28,8 +28,14 @@ jobs:
           set -euo pipefail
           SYNC_BRANCH=sync/upstream-${{ github.run_id }}
 
-          # ensure we have all refs
-          git fetch --all --prune
+          # ensure we have all refs (don't download tags to save time/traffic)
+          git fetch --all --prune --no-tags
+
+          # configure committer identity so merges created by the runner have a valid author
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+          export GIT_COMMITTER_NAME="${GITHUB_ACTOR}"
+          export GIT_COMMITTER_EMAIL="${GITHUB_ACTOR}@users.noreply.github.com"
 
           # checkout master (create tracking branch if missing)
           if git show-ref --verify --quiet refs/heads/master; then
