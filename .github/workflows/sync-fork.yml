@@ -23,97 +23,54 @@ jobs:
           # fetch all refs from upstream so we can reset to the upstream default branch (master)
           git fetch upstream --prune --no-tags
 
-      - name: Update Master fork
+      - name: Sync master -> main (create sync branch from master and merge to main)
         run: |
+          set -euo pipefail
+          SYNC_BRANCH=sync/upstream-${{ github.run_id }}
+
+          # ensure we have all refs
+          git fetch --all --prune
+
+          # checkout master (create tracking branch if missing)
+          if git show-ref --verify --quiet refs/heads/master; then
             git checkout master
-            git fetch origin update
-            git rebase -i upstream/master
-            git push --force-with-lease origin master
+          else
+            git checkout -b master origin/master
+          fi
 
-      - name: Create sync branch
-        run: |
-          git checkout -B sync/upstream-${{ github.run_id }}
-          # Reset the new branch to the upstream 'master' branch (QuantConnect/Lean uses 'master')
-          git reset --hard upstream/master
-          git push -f origin sync/upstream-${{ github.run_id }}
+          # pull latest from origin/master
+          git pull --ff-only origin master || git pull origin master
 
-      # Tests removed: this repository doesn't provide a build_and_test.sh script
-      # If you want tests later, re-add a step here that runs your repository's test command(s).
-      - name: Create PR
-        id: create_pr
-        uses: actions/github-script@v6
-        env:
-          PR_BRANCH: sync/upstream-${{ github.run_id }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { owner, repo } = context.repo;
-            const head = process.env.PR_BRANCH;
-            const title = `chore: sync from upstream QuantConnect/Lean (upstream/master) @ ${context.runId}`;
-            const body = `Automated sync from upstream QuantConnect/Lean (upstream/master).`;
+          # compare master vs main
+          git fetch origin main:refs/remotes/origin/main || true
+          counts=$(git rev-list --left-right --count origin/main...master)
+          behind=$(echo "$counts" | awk '{print $1}')
+          ahead=$(echo "$counts" | awk '{print $2}')
+          echo "master is $ahead commits ahead and $behind commits behind origin/main"
 
-            core.info(`Creating PR from ${head} into main`);
+          if [ "$ahead" -gt 0 ]; then
+            echo "Creating sync branch $SYNC_BRANCH from master"
+            git checkout -B "$SYNC_BRANCH" master
+            git push -f origin "$SYNC_BRANCH"
 
-            try {
-              const { data: pr } = await github.rest.pulls.create({
-                owner,
-                repo,
-                title,
-                head,
-                base: 'main',
-                body,
-                maintainer_can_modify: true
-              });
+            echo "Merging $SYNC_BRANCH into main"
+            # ensure local main exists and is up to date
+            if git show-ref --verify --quiet refs/heads/main; then
+              git checkout main
+            else
+              git checkout -b main origin/main || git checkout -b main origin/main || git checkout -b main
+            fi
+            git pull --ff-only origin main || git pull origin main
 
-              core.info(`Created PR #${pr.number}`);
-              // export PR number so following steps can read it via env.PR_NUMBER
-              core.exportVariable('PR_NUMBER', String(pr.number));
-            } catch (err) {
-              core.setFailed(`Failed to create PR: ${err.message}`);
-            }
-
-      - name: Auto-merge PR and delete branch
-        if: env.PR_NUMBER != ''
-        uses: actions/github-script@v6
-        env:
-          PR_NUMBER: ${{ env.PR_NUMBER }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = Number(process.env.PR_NUMBER || 0);
-            if (!prNumber) {
-              core.setFailed('No pull request number available to merge.');
-            }
-
-            const { owner, repo } = context.repo;
-
-            // Attempt to merge the PR
-            try {
-              await github.rest.pulls.merge({
-                owner,
-                repo,
-                pull_number: prNumber,
-                merge_method: 'merge'
-              });
-              core.info(`Merged PR #${prNumber}`);
-            } catch (err) {
-              core.setFailed(`Failed to merge PR #${prNumber}: ${err.message}`);
-            }
-
-            // Get PR details to find the head branch and delete it
-            try {
-              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
-              const headRef = pr.head && pr.head.ref;
-              if (headRef) {
-                try {
-                  await github.rest.git.deleteRef({ owner, repo, ref: `heads/${headRef}` });
-                  core.info(`Deleted branch heads/${headRef}`);
-                } catch (delErr) {
-                  core.warning(`Failed to delete branch heads/${headRef}: ${delErr.message}`);
-                }
-              } else {
-                core.warning('No head.ref found on PR; skipping branch deletion.');
-              }
-            } catch (err) {
-              core.warning(`Could not retrieve PR #${prNumber} details: ${err.message}`);
-            }
+            # perform merge (create merge commit)
+            if git merge --no-ff --no-edit "$SYNC_BRANCH"; then
+              git push origin main
+              echo "Merged $SYNC_BRANCH into main and pushed to origin"
+            else
+              echo "Merge failed due to conflicts. Aborting merge and exiting with error"
+              git merge --abort || true
+              exit 1
+            fi
+          else
+            echo "master is not ahead of main; nothing to sync"
+          fi
