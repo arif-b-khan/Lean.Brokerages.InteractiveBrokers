@@ -13,27 +13,28 @@
  * limitations under the License.
 */
 
-using System.Collections.Generic;
-using System.Xml.Serialization;
+using System;
 
-namespace QuantConnect.Brokerages.InteractiveBrokers.FinancialAdvisor
+namespace QuantConnect.Brokerages.InteractiveBrokers.Client;
+
+/// <summary>
+/// Provides data for the event that signals the end of an account update request
+/// made using the Financial Advisor (FA) group API.
+/// </summary>
+public sealed class AccountUpdateMultiEndEventArgs : EventArgs
 {
     /// <summary>
-    /// Represents a group of accounts
+    /// The request ID.
     /// </summary>
-    public class Group
-    {
-        /// <summary>
-        /// The name of the group
-        /// </summary>
-        [XmlElement("name")]
-        public string Name { get; set; }
+    public int RequestId { get; }
 
-        /// <summary>
-        /// The list of accounts in the group
-        /// </summary>
-        [XmlArray("ListOfAccts")]
-        [XmlArrayItem("String")]
-        public List<string> Accounts { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AccountUpdateMultiEndEventArgs"/> class.
+    /// </summary>
+    /// <param name="requestId">The ID of the request that has completed.</param>
+    public AccountUpdateMultiEndEventArgs(int requestId)
+    {
+        RequestId = requestId;
     }
 }
