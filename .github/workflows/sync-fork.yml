@@ -23,6 +23,13 @@ jobs:
           # fetch all refs from upstream so we can reset to the upstream default branch (master)
           git fetch upstream --prune --no-tags
 
+      - name: Update Master fork
+        run: |
+            git checkout master
+            git fetch origin update
+            git rebase -i upstream/master
+            git push --force-with-lease origin master
+
       - name: Create sync branch
         run: |
           git checkout -B sync/upstream-${{ github.run_id }}
@@ -33,11 +40,80 @@ jobs:
       # Tests removed: this repository doesn't provide a build_and_test.sh script
       # If you want tests later, re-add a step here that runs your repository's test command(s).
       - name: Create PR
-        uses: peter-evans/create-pull-request@v5
+        id: create_pr
+        uses: actions/github-script@v6
+        env:
+          PR_BRANCH: sync/upstream-${{ github.run_id }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          title: "chore: sync from upstream QuantConnect/Lean (upstream/master) @ ${{ github.run_id }}"
-          body: |
-            Automated sync from upstream QuantConnect/Lean (upstream/master).
-          branch: sync/upstream-${{ github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const head = process.env.PR_BRANCH;
+            const title = `chore: sync from upstream QuantConnect/Lean (upstream/master) @ ${context.runId}`;
+            const body = `Automated sync from upstream QuantConnect/Lean (upstream/master).`;
+
+            core.info(`Creating PR from ${head} into main`);
+
+            try {
+              const { data: pr } = await github.rest.pulls.create({
+                owner,
+                repo,
+                title,
+                head,
+                base: 'main',
+                body,
+                maintainer_can_modify: true
+              });
+
+              core.info(`Created PR #${pr.number}`);
+              // export PR number so following steps can read it via env.PR_NUMBER
+              core.exportVariable('PR_NUMBER', String(pr.number));
+            } catch (err) {
+              core.setFailed(`Failed to create PR: ${err.message}`);
+            }
+
+      - name: Auto-merge PR and delete branch
+        if: env.PR_NUMBER != ''
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ env.PR_NUMBER }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = Number(process.env.PR_NUMBER || 0);
+            if (!prNumber) {
+              core.setFailed('No pull request number available to merge.');
+            }
+
+            const { owner, repo } = context.repo;
+
+            // Attempt to merge the PR
+            try {
+              await github.rest.pulls.merge({
+                owner,
+                repo,
+                pull_number: prNumber,
+                merge_method: 'merge'
+              });
+              core.info(`Merged PR #${prNumber}`);
+            } catch (err) {
+              core.setFailed(`Failed to merge PR #${prNumber}: ${err.message}`);
+            }
+
+            // Get PR details to find the head branch and delete it
+            try {
+              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+              const headRef = pr.head && pr.head.ref;
+              if (headRef) {
+                try {
+                  await github.rest.git.deleteRef({ owner, repo, ref: `heads/${headRef}` });
+                  core.info(`Deleted branch heads/${headRef}`);
+                } catch (delErr) {
+                  core.warning(`Failed to delete branch heads/${headRef}: ${delErr.message}`);
+                }
+              } else {
+                core.warning('No head.ref found on PR; skipping branch deletion.');
+              }
+            } catch (err) {
+              core.warning(`Could not retrieve PR #${prNumber} details: ${err.message}`);
+            }
