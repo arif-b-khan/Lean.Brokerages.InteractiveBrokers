@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IB ToolBox Config",
+  "type": "object",
+  "properties": {
+    "IB_USERNAME": { "type": "string", "minLength": 1 },
+    "IB_PASSWORD": { "type": "string", "minLength": 1 },
+    "IB_ACCOUNT": { "type": "string", "minLength": 1 },
+    "GATEWAY_HOST": { "type": "string", "default": "127.0.0.1" },
+    "GATEWAY_PORT": { "type": "integer", "default": 7497 },
+    "DATA_DIR": { "type": "string", "description": "Root folder for LEAN data output" },
+    "LOG_LEVEL": { "type": "string", "enum": ["trace", "debug", "info", "warn", "error"], "default": "info" }
+  },
+  "required": ["IB_USERNAME", "IB_PASSWORD", "IB_ACCOUNT"],
+  "additionalProperties": false
+}

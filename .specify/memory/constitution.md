@@ -1,50 +1,112 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: 0.0.0 → 1.0.0
+- Modified principles: N/A (initial adoption)
+- Added sections: Core Principles (5), Engineering Standards, Development Workflow & Quality Gates, Governance
+- Removed sections: None
+- Templates requiring updates:
+  ✅ .specify/templates/plan-template.md (footer version/path)
+  ✅ .specify/templates/spec-template.md (reviewed, no change)
+  ✅ .specify/templates/tasks-template.md (reviewed, no change)
+  ✅ .specify/templates/agent-file-template.md (reviewed, no change)
+- Follow-up TODOs: None
+-->
+
+# Lean.Brokerages.InteractiveBrokers Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Behavior Parity with LEAN and IB APIs (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+The brokerage plugin MUST preserve functional parity with upstream LEAN expectations
+and Interactive Brokers (IB) API behavior.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+- Public contracts, error codes, and order semantics MUST NOT change without a
+  major version bump and migration notes.
+- Brokerage models, fees, margin, fills, and instrument mapping MUST match the
+  documented IB behavior for supported asset classes.
+- Synchronization with upstream LEAN changes MUST be validated by tests before release.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Rationale: Predictable parity enables reproducible research, safe live trading, and
+smooth upgrades across LEAN and brokerage layers.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### II. Tests-First and Deterministic CI Gate
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+All changes MUST be backed by deterministic tests that run in CI.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- Unit and integration tests MUST be added or updated for every functional change.
+- Tests MUST avoid nondeterminism (fixed clocks, seeded randomness, stable data).
+- CI MUST build and run the full test suite; merges are blocked on failures.
+- Edge cases (timeouts, re-connects, partial fills, rate limits) MUST be covered
+  with targeted tests.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Rationale: Deterministic tests guard live trading reliability and prevent regressions.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### III. Backward Compatibility and Semantic Versioning
+
+The project MUST follow SemVer for releases.
+
+- PATCH: Bug fixes only, no public contract changes.
+- MINOR: Backward compatible additions; deprecations require clear warnings and
+  a documented removal window.
+- MAJOR: Any breaking change to public contracts or behavior; requires migration notes.
+
+Rationale: Clear versioning and deprecation paths enable safe adoption in production.
+
+### IV. Observability and Operability
+
+The plugin MUST provide actionable telemetry without leaking sensitive data.
+
+- Use structured, leveled logging for order lifecycle, connectivity, and errors.
+- No secrets or PII in logs; redact credentials and account identifiers.
+- Expose correlation identifiers for tracing multi-step operations.
+- Timeouts and retries MUST be visible via logs/metrics for production triage.
+
+Rationale: Fast incident response requires traceable, safe, and useful signals.
+
+### V. Performance, Concurrency, and Safety for Live Trading
+
+The runtime MUST be efficient, thread-safe, and resilient.
+
+- Avoid blocking calls on hot paths; prefer async/cancellable operations.
+- Enforce thread-safety for shared state (orders, positions, subscriptions).
+- Respect IB rate limits and backoff guidance.
+- Never swallow errors; surface actionable failures with context.
+
+Rationale: Live trading demands low-latency, predictable behavior with safe recovery.
+
+## Engineering Standards
+
+- Language/Runtime: C# targeting the version aligned with upstream LEAN; keep
+  dependencies minimal and pinned.
+- Code Style: Match LEAN/QuantConnect conventions; include XML docs on public APIs.
+- API Surface: Avoid expanding public surface area without clear necessity and tests.
+- Security: Secrets configured via environment/secure stores; never committed or logged.
+- Threading: Prefer CancellationToken, Task-based async; avoid Thread.Sleep on hot paths.
+- Data Contracts: Mapping and symbol translation MUST be covered by unit tests.
+- Third-Party Libraries: Only introduce well-maintained, permissive-licensed libraries
+  with clear benefit; document them in PRs.
+
+## Development Workflow & Quality Gates
+
+- PR Requirements: CI green, tests added/updated, rationale explained, and risk noted.
+- Reviews: At least one maintainer approval with explicit Constitution compliance check.
+- CI Gates: build, unit tests, and integration smoke tests MUST pass.
+- Changelog: Update release notes for user-visible changes; include migration notes for
+  deprecations/breakers.
+- Branch Hygiene: Temporary sync/* branches may be created by automation and cleaned up
+  by maintenance workflows; never rely on them for long-lived work.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Scope: This Constitution governs engineering practices for the
+  Lean.Brokerages.InteractiveBrokers repository and supersedes conflicting ad-hoc
+  practices.
+- Amendments: Proposed via PR updating this document and dependent templates. Version
+  MUST be bumped per SemVer rules and Last Amended date updated.
+- Compliance: Reviewers MUST block PRs that violate non-negotiable principles unless a
+  governance exception is explicitly recorded with a remediation plan and versioned.
+- Review Cadence: At least quarterly, or on upstream LEAN/IB breaking changes, run a
+  compliance review across principles and quality gates.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-09-28 | **Last Amended**: 2025-09-28
