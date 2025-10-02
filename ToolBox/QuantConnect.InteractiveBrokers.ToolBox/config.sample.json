@@ -1,0 +1,17 @@
+{
+  "#":"Sample configuration for QuantConnect.InteractiveBrokers.ToolBox. Copy to `config.json` and fill in secrets before use.",
+
+  "IB_USERNAME": "YOUR_IB_USERNAME",
+  "IB_PASSWORD": "YOUR_IB_PASSWORD",
+  "IB_ACCOUNT": "DU1234567",
+  "IB_GATEWAY_DIR": "/Users/your-user/Jts",
+  "IB_VERSION": "latest",
+  "IB_TRADING_MODE": "paper",
+  "IB_AUTOMATER_EXPORT_LOGS": "false",
+
+  "GATEWAY_HOST": "127.0.0.1",
+  "GATEWAY_PORT": "7497",
+
+  "DATA_DIR": "/Users/arifkhan/github/Lean/Data",
+  "LOG_LEVEL": "Information"
+}
