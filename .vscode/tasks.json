@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+  "command": "dotnet build \"${workspaceFolder}/ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/QuantConnect.InteractiveBrokers.ToolBox.UI.csproj\" -c Debug",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
