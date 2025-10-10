@@ -20,4 +20,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Gui/**/*.cs" />
+    <None Remove="Gui/**/*.axaml" />
+  </ItemGroup>
+
+  <!-- The UI is implemented as a separate project. It references the CLI project to reuse data-fetching logic.
+       Avoid referencing the UI from the CLI to prevent circular ProjectReference chains. -->
+
 </Project>

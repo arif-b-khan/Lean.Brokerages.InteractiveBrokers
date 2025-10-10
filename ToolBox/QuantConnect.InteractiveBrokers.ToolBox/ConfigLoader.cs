@@ -1,4 +1,5 @@
 using System.Text.Json;
+using QuantConnect.InteractiveBrokers.ToolBox.Security;
 
 namespace QuantConnect.InteractiveBrokers.ToolBox;
 
@@ -8,12 +9,15 @@ namespace QuantConnect.InteractiveBrokers.ToolBox;
 public class ConfigLoader
 {
     private readonly ILogger? _logger;
+    private readonly ICredentialStore? _credentialStore;
     private readonly string[] _requiredKeys = ["IB_USERNAME", "IB_PASSWORD", "IB_ACCOUNT"];
     private readonly string[] _secretKeys = ["IB_PASSWORD"];
+    private readonly string[] _persistedKeys = ["IB_USERNAME", "IB_PASSWORD", "IB_ACCOUNT"];
 
-    public ConfigLoader(ILogger? logger = null)
+    public ConfigLoader(ILogger? logger = null, ICredentialStore? credentialStore = null)
     {
         _logger = logger;
+        _credentialStore = credentialStore;
     }
 
     /// <summary>
@@ -45,6 +49,11 @@ public class ConfigLoader
         // Environment variables override file config
         config = MergeConfigs(config);
 
+        if (_credentialStore is not null)
+        {
+            await HydrateFromCredentialStore(config).ConfigureAwait(false);
+        }
+
         // Validate required keys
         ValidateConfig(config);
 
@@ -52,6 +61,26 @@ public class ConfigLoader
         _logger?.LogDebug(GetRedactedConfigString(config));
 
         return config;
+    }
+
+    public async Task PersistSecretsAsync(Dictionary<string, string> config, CancellationToken cancellationToken = default)
+    {
+        if (_credentialStore is null)
+        {
+            return;
+        }
+
+        foreach (var key in _persistedKeys)
+        {
+            if (config.TryGetValue(key, out var value) && !string.IsNullOrWhiteSpace(value))
+            {
+                await _credentialStore.SaveAsync(key, value, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                await _credentialStore.DeleteAsync(key, cancellationToken).ConfigureAwait(false);
+            }
+        }
     }
 
     /// <summary>
@@ -134,5 +163,27 @@ public class ConfigLoader
         });
 
         return string.Join(", ", redactedPairs);
+    }
+
+    private async Task HydrateFromCredentialStore(Dictionary<string, string> config)
+    {
+        if (_credentialStore is null)
+        {
+            return;
+        }
+
+        foreach (var key in _persistedKeys)
+        {
+            if (config.TryGetValue(key, out var existing) && !string.IsNullOrWhiteSpace(existing))
+            {
+                continue;
+            }
+
+            var storedValue = await _credentialStore.LoadAsync(key).ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(storedValue))
+            {
+                config[key] = storedValue;
+            }
+        }
     }
 }

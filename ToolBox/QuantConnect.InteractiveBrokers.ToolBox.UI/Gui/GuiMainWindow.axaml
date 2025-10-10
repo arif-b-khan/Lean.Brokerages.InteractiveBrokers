@@ -1,0 +1,10 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ToolBox GUI"
+        Width="800" Height="600">
+  <StackPanel Margin="12">
+    <TextBlock Text="QuantConnect Interactive Brokers ToolBox" FontSize="18"/>
+    <Button Name="StartButton" Content="Start Download" Width="200" Margin="0,12,0,0"/>
+    <ItemsControl Name="JobsList" Margin="0,12,0,0"/>
+  </StackPanel>
+</Window>

@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.GuiMainWindow"
+        mc:Ignorable="d"
+        Title="Interactive Brokers ToolBox"
+        Width="1200"
+        Height="800">
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+    <StackPanel Orientation="Horizontal"
+          Background="{DynamicResource ThemeAccentBrush}"
+          Margin="12"
+          Spacing="12">
+      <TextBlock Text="Interactive Brokers ToolBox" FontSize="20" FontWeight="Bold" Foreground="White"/>
+      <TextBlock Text="(UI Preview)" VerticalAlignment="Center" Foreground="White"/>
+    </StackPanel>
+
+    <Border Grid.Row="1" Padding="24">
+      <TextBlock Text="GUI placeholder – connect view models in later tasks." FontSize="18"/>
+    </Border>
+  </Grid>
+</Window>

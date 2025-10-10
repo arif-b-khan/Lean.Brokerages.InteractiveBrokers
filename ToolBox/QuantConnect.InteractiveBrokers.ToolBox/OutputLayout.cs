@@ -13,17 +13,16 @@ public class OutputLayout
         var securityType = request.SecurityType.ToLowerInvariant();
         var resolution = request.Resolution.ToLowerInvariant();
         var symbol = request.Symbol.ToLowerInvariant();
-        var firstLetter = GetFirstLetterFolder(symbol);
-        
         // Default to USA market for equities
         var market = securityType == "equity" ? "usa" : "generic";
-        
+
+        // Place the symbol directory directly under the resolution folder, e.g.
+        // {dataDir}/{securityType}/{market}/{resolution}/{symbol}
         return Path.Combine(
             request.DataDir,
             securityType,
             market,
             resolution,
-            firstLetter,
             symbol
         );
     }

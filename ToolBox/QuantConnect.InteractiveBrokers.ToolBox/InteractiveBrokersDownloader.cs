@@ -44,11 +44,30 @@ public class InteractiveBrokersDownloader : IDataDownloader
         _logger.LogInfo($"Fetching bars for {request.Symbol} from {request.From:yyyy-MM-dd} to {request.To:yyyy-MM-dd}");
         
         // TODO: Implement actual IB API integration
-        // For now, return sample data for development/testing
-        var sampleBars = GenerateSampleBars(request.Symbol, request.From, request.Resolution);
-        
-        _logger.LogInfo($"Generated {sampleBars.Count()} sample bars");
-        return Task.FromResult<IEnumerable<IBar>>(sampleBars);
+        // For now, return sample data for development/testing across the requested date range
+        var allBars = new List<IBar>();
+
+        var date = request.From.Date;
+        var endDate = request.To.Date;
+
+        while (date <= endDate)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (IsMarketDay(date))
+            {
+                var dayBars = GenerateSampleBars(request.Symbol, date, request.Resolution);
+                if (dayBars?.Count > 0)
+                {
+                    allBars.AddRange(dayBars);
+                }
+            }
+
+            date = date.AddDays(1);
+        }
+
+        _logger.LogInfo($"Generated {allBars.Count} sample bars for {request.Symbol} spanning {request.From:yyyy-MM-dd} -> {request.To:yyyy-MM-dd}");
+        return Task.FromResult<IEnumerable<IBar>>(allBars);
     }
 
     /// <summary>
