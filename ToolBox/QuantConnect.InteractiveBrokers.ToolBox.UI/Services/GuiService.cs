@@ -1,5 +1,6 @@
-using QuantConnect.InteractiveBrokers.ToolBox.Services;
 using QuantConnect.InteractiveBrokers.ToolBox;
+using QuantConnect.InteractiveBrokers.ToolBox.Models;
+using QuantConnect.InteractiveBrokers.ToolBox.Services;
 using QuantConnect.InteractiveBrokers.ToolBox.UI.Api;
 
 namespace QuantConnect.InteractiveBrokers.ToolBox.UI.Services;
@@ -7,15 +8,17 @@ namespace QuantConnect.InteractiveBrokers.ToolBox.UI.Services;
 public class GuiService : IGuiApi
 {
     private readonly DownloadJobManager _jobManager;
-    private readonly InteractiveBrokersDownloader _downloader;
+    private readonly IDataDownloader _downloader;
     private readonly DataWriter _dataWriter;
+    private readonly ILeanDataSnapshotLoader _snapshotLoader;
     private readonly ILogger _logger;
 
-    public GuiService(DownloadJobManager jobManager, InteractiveBrokersDownloader downloader, DataWriter dataWriter, ILogger logger)
+    public GuiService(DownloadJobManager jobManager, IDataDownloader downloader, DataWriter dataWriter, ILeanDataSnapshotLoader snapshotLoader, ILogger logger)
     {
         _jobManager = jobManager;
         _downloader = downloader;
         _dataWriter = dataWriter;
+        _snapshotLoader = snapshotLoader;
         _logger = logger;
     }
 
@@ -59,5 +62,11 @@ public class GuiService : IGuiApi
     public Task<IReadOnlyList<QuantConnect.InteractiveBrokers.ToolBox.Services.JobInfo>> GetJobsAsync(CancellationToken ct = default)
     {
         return _jobManager.GetJobsAsync(ct);
+    }
+
+    public Task<SnapshotPage> LoadSnapshotAsync(SnapshotRequest request, CancellationToken ct = default)
+    {
+        _logger.LogInfo($"[GuiService] Loading snapshot for {request.Symbol} ({request.Resolution}) page {request.PageNumber}.");
+        return _snapshotLoader.LoadAsync(request, ct);
     }
 }

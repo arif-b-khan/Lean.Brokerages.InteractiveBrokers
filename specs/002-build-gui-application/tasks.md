@@ -16,6 +16,7 @@ Feature goal: Embed an Avalonia-based GUI in the existing Toolbox project to man
 ## Core Implementation
 
 - [ ] **T006** — Implement GUI service layer (in-process API)
+- [X] **T006** — Implement GUI service layer (in-process API)
   Files: `Services/GuiService.cs`, `Api/GuiApi.cs`, `Services/DownloadJobManager.cs`, `GuiServiceTests.cs`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (consumer UI project will call into this service)
   Actions: Implement service fulfilling contract using OutputLayout/DataWriter/InteractiveBrokersDownloader; add unit tests.

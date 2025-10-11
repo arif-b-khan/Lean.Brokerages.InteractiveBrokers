@@ -3,9 +3,9 @@ using Avalonia.Markup.Xaml;
 
 namespace QuantConnect.InteractiveBrokers.ToolBox.UI.Gui;
 
-public partial class GuiMainWindow : Window
+public partial class LegacyGuiMainWindow : Window
 {
-    public GuiMainWindow()
+        public LegacyGuiMainWindow()
     {
         InitializeComponent();
     }

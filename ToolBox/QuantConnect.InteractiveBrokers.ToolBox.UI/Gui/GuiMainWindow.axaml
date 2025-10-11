@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="ToolBox GUI"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.LegacyGuiMainWindow"
+  Title="ToolBox GUI"
         Width="800" Height="600">
   <StackPanel Margin="12">
     <TextBlock Text="QuantConnect Interactive Brokers ToolBox" FontSize="18"/>

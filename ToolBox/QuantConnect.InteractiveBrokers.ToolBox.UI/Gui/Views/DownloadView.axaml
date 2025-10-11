@@ -1,0 +1,8 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="600" Height="400">
+  <StackPanel Margin="8">
+    <TextBlock Text="Download" FontSize="16"/>
+    <Button Content="Start" Name="StartButton" Width="120"/>
+  </StackPanel>
+</UserControl>

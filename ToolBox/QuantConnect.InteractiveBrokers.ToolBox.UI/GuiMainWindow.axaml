@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.GuiMainWindow"
+        x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.GuiMainWindow"
         mc:Ignorable="d"
         Title="Interactive Brokers ToolBox"
         Width="1200"
@@ -17,7 +17,17 @@
     </StackPanel>
 
     <Border Grid.Row="1" Padding="24">
-      <TextBlock Text="GUI placeholder – connect view models in later tasks." FontSize="18"/>
+      <Grid ColumnDefinitions="2*,*">
+        <StackPanel>
+          <TextBlock Text="Downloads" FontSize="18" Margin="0,0,0,8"/>
+          <Button Content="Start Download" Command="{Binding StartCommand}" Width="180"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1">
+          <TextBlock Text="Jobs" FontSize="18" Margin="0,0,0,8"/>
+          <ListBox ItemsSource="{Binding Jobs}" Height="400"/>
+        </StackPanel>
+      </Grid>
     </Border>
   </Grid>
 </Window>

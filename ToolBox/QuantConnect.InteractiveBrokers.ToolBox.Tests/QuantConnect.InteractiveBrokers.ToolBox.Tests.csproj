@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../QuantConnect.InteractiveBrokers.ToolBox/QuantConnect.InteractiveBrokers.ToolBox.csproj" />
+    <ProjectReference Include="../QuantConnect.InteractiveBrokers.ToolBox.UI/QuantConnect.InteractiveBrokers.ToolBox.UI.csproj" />
   </ItemGroup>
 
 </Project>
