@@ -16,7 +16,16 @@ This will launch the cross-platform Avalonia GUI in development mode. From the G
 3. Choose a symbol and click "Load" to view data in the grid.
 4. To perform downloads, open the "Downloads" tab, select date range and symbol, then click "Start".
 
-Notes:
+
+## Credential Storage
+
+IB credentials are stored securely per user using AES encryption. You can clear or update credentials from the Connection tab. Credentials are never logged or exposed in plaintext.
+
+## Troubleshooting
+
+- If the GUI fails to launch, ensure you have .NET 9.0 and Avalonia dependencies installed.
+- For credential issues, use the "Clear" button in the Connection tab and re-enter your credentials.
+- For data directory issues, verify the path and permissions.
 
 ## Contracts for GUI
 

@@ -1,38 +1,49 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Collections.ObjectModel;
+using QuantConnect.InteractiveBrokers.ToolBox.Models;
+using QuantConnect.InteractiveBrokers.ToolBox.Services;
 using QuantConnect.InteractiveBrokers.ToolBox.UI.Api;
 
 namespace QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.ViewModels;
 
 public class MainViewModel
 {
-    private readonly IGuiApi _gui;
+    private readonly IGuiApi _api;
+    public DownloadViewModel Downloads { get; }
+    public SnapshotViewModel Snapshots { get; }
+    public ConnectionViewModel Connection { get; }
 
-    public ICommand StartCommand { get; }
+    public MainViewModel() : this(new DesignTimeApi()) {}
 
-    public ObservableCollection<string> Jobs { get; } = new();
-
-    public MainViewModel(IGuiApi gui)
+    public MainViewModel(IGuiApi api)
     {
-        _gui = gui;
-        StartCommand = new RelayCommand(async _ => await StartJob());
+        _api = api;
+        Downloads = new DownloadViewModel(_api);
+        Snapshots = new SnapshotViewModel(_api);
+        Connection = new ConnectionViewModel();
     }
+}
 
-    private async Task StartJob()
-    {
-        var request = new DownloadRequest
-        {
-            Symbol = "TEST",
-            Resolution = "daily",
-            From = DateTime.UtcNow.Date.AddDays(-1),
-            To = DateTime.UtcNow.Date,
-            DataDir = Path.GetTempPath()
-        };
+internal sealed class DesignTimeApi : IGuiApi
+{
+    public Task<IReadOnlyList<JobInfo>> GetJobsAsync(CancellationToken ct = default) =>
+        Task.FromResult((IReadOnlyList<JobInfo>)new List<JobInfo>());
 
-        var job = await _gui.StartDownloadJobAsync(request);
-        Jobs.Add($"{job.JobId}: {job.Symbol} [{job.Status}]");
-    }
+    public Task<SnapshotPage> LoadSnapshotAsync(SnapshotRequest request, CancellationToken ct = default) =>
+        Task.FromResult(new SnapshotPage(new LeanDataSnapshot(
+            Guid.NewGuid(), 
+            "SPY", 
+            "Daily", 
+            DateOnly.FromDateTime(DateTime.Today.AddDays(-30)), 
+            DateOnly.FromDateTime(DateTime.Today),
+            [], 
+            DateTime.UtcNow, 
+            []), request.PageNumber, request.PageSize, 0));
+
+    public Task<JobInfo> StartDownloadJobAsync(DownloadRequest request, CancellationToken ct = default) =>
+        Task.FromResult(new JobInfo(Guid.NewGuid().ToString("N"), request.Symbol, request.Resolution, "Running", DateTime.UtcNow));
+
+    public Task StopDownloadJobAsync(string jobId, CancellationToken ct = default) => Task.CompletedTask;
 }

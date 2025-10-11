@@ -16,8 +16,17 @@ Run the UI locally:
 dotnet run --project ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/QuantConnect.InteractiveBrokers.ToolBox.UI.csproj -c Debug
 ```
 
-Notes
-- The UI project references the CLI project (`ToolBox/QuantConnect.InteractiveBrokers.ToolBox`) via a ProjectReference so it can reuse download/data-fetching logic.
-- We intentionally avoid adding a ProjectReference from the CLI back to the UI to prevent circular project references. Build the solution normally; the UI project builds as part of the solution because it references the CLI.
-- If your environment cannot render GUIs (CI/headless), run only the CLI project. The UI requires a graphical environment.
+Credential Storage
+------------------
+IB credentials are stored securely per user using AES encryption. You can clear or update credentials from the Connection tab. Credentials are never logged or exposed in plaintext.
+
+DataGrid Usage
+--------------
+The snapshot viewer uses Avalonia's DataGrid with virtualization for fast paging of large datasets. If you experience performance issues, ensure your system meets Avalonia's requirements.
+
+Troubleshooting
+---------------
+- If the GUI fails to launch, ensure you have .NET 9.0 and Avalonia dependencies installed.
+- For credential issues, use the "Clear" button in the Connection tab and re-enter your credentials.
+- For data directory issues, verify the path and permissions.
 

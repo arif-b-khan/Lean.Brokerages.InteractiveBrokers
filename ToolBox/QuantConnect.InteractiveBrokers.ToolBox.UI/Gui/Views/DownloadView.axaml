@@ -1,8 +1,44 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.ViewModels"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.Views.DownloadView"
+             mc:Ignorable="d"
              Width="600" Height="400">
-  <StackPanel Margin="8">
-    <TextBlock Text="Download" FontSize="16"/>
-    <Button Content="Start" Name="StartButton" Width="120"/>
+  <UserControl.DataContext>
+    <vm:DownloadViewModel />
+  </UserControl.DataContext>
+  <StackPanel Margin="8" Spacing="8">
+    <TextBlock Text="Download" FontSize="16" FontWeight="Bold"/>
+    <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Symbol:" Margin="0,4,8,4"/>
+      <TextBox Grid.Row="0" Grid.Column="1" Width="140" Text="{Binding Symbol}"/>
+
+      <TextBlock Grid.Row="0" Grid.Column="2" Text="Resolution:" Margin="12,4,8,4"/>
+      <ComboBox Grid.Row="0" Grid.Column="3" SelectedItem="{Binding Resolution}" Width="140">
+        <ComboBox.Items>
+          <sys:String>daily</sys:String>
+          <sys:String>hour</sys:String>
+          <sys:String>minute</sys:String>
+        </ComboBox.Items>
+      </ComboBox>
+
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="From:" Margin="0,4,8,4"/>
+      <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding From}"/>
+
+      <TextBlock Grid.Row="1" Grid.Column="2" Text="To:" Margin="12,4,8,4"/>
+      <DatePicker Grid.Row="1" Grid.Column="3" SelectedDate="{Binding To}"/>
+
+      <Button Grid.Row="1" Grid.Column="5" Content="Start" Command="{Binding StartCommand}"/>
+    </Grid>
+
+    <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Margin="0,8,0,0" Padding="8">
+      <StackPanel>
+        <TextBlock Text="Jobs" FontWeight="Bold" Margin="0,0,0,4"/>
+        <ItemsControl ItemsSource="{Binding Jobs}"/>
+      </StackPanel>
+    </Border>
   </StackPanel>
 </UserControl>

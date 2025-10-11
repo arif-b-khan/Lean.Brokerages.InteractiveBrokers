@@ -21,41 +21,41 @@ Feature goal: Embed an Avalonia-based GUI in the existing Toolbox project to man
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (consumer UI project will call into this service)
   Actions: Implement service fulfilling contract using OutputLayout/DataWriter/InteractiveBrokersDownloader; add unit tests.
 
-- [ ] **T007** — Add end-to-end GuiService integration test [P]
+- [X] **T007** — Add end-to-end GuiService integration test [P]
   Files: `GuiServiceIntegrationTests.cs`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (integration validates end-to-end from UI consumer to service)
   Actions: Use temp LEAN data to validate snapshot paging and download job lifecycle.
 
-- [ ] **T008** — Build Avalonia UI skeleton tied to service layer
+- [X] **T008** — Build Avalonia UI skeleton tied to service layer
   Files: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/MainWindow.axaml`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/ViewModels/MainViewModel.cs`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Views/SnapshotView.axaml`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Views/DownloadView.axaml`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (Avalonia UI project)
   Actions: Bind UI to service, add pagination skeleton and job status controls.
 
 ## Integration
 
-- [ ] **T009** — Persist brokerage configuration via credential store
+- [X] **T009** — Persist brokerage configuration via credential store
   Files: `Security/CredentialStore.cs`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/ViewModels/ConnectionViewModel.cs`, related tests
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (view model lives in UI project)
   Actions: Wire GUI to secure storage with tests.
 
-- [ ] **T010** — Implement download job persistence & resume logic
+- [X] **T010** — Implement download job persistence & resume logic
   Files: `Services/DownloadJobManager.cs`, `Services/JobStore.cs`, `JobStoreTests.cs`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (UI should surface persisted jobs from the service)
   Actions: Store job metadata securely, resume on startup.
 
 ## Polish
 
-- [ ] **T011 [P]** — UI polish & accessibility
+- [X] **T011 [P]** — UI polish & accessibility
   Files: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Resources/*`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Styles/*`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (UI resources and styles)
   Actions: Add styles, keyboard shortcuts, platform tweaks.
 
-- [ ] **T012** — Logging & observability improvements
+- [X] **T012** — Logging & observability improvements
   Files: `StructuredLogger.cs`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Logging/UiLoggerAdapter.cs`, `LoggingTests.cs`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (UI logging adapter)
   Actions: Add UI-aware logging, ensure secrets not logged.
 
-- [ ] **T013** — Documentation updates
+- [X] **T013** — Documentation updates
   Files: `specs/002-build-gui-application/quickstart.md`, `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/README.md`
   Project: `ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI` (update UI README and quickstart)
   Actions: Update run instructions, document credential storage and troubleshooting.

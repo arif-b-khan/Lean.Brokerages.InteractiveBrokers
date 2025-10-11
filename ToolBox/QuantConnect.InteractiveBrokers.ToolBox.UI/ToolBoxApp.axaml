@@ -3,5 +3,6 @@
              x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.ToolBoxApp">
   <Application.Styles>
     <FluentTheme />
+    <StyleInclude Source="avares://QuantConnect.InteractiveBrokers.ToolBox.UI/Gui/Styles/ToolBoxStyles.axaml"/>
   </Application.Styles>
 </Application>

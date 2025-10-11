@@ -1,8 +1,65 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.ViewModels"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.Views.SnapshotView"
+             mc:Ignorable="d"
              Width="800" Height="600">
-  <StackPanel Margin="8">
-    <TextBlock Text="Snapshot Viewer" FontSize="16"/>
-    <ListBox Name="SnapshotList" Height="400"/>
-  </StackPanel>
+  <UserControl.DataContext>
+    <vm:SnapshotViewModel />
+  </UserControl.DataContext>
+  <DockPanel Margin="8">
+    <StackPanel DockPanel.Dock="Top" Spacing="8">
+      <TextBlock Text="Snapshot Viewer" FontSize="16" FontWeight="Bold"/>
+      <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*,Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Symbol:" Margin="0,4,8,4"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Width="140" Text="{Binding Symbol}"/>
+
+        <TextBlock Grid.Row="0" Grid.Column="2" Text="Resolution:" Margin="12,4,8,4"/>
+        <ComboBox Grid.Row="0" Grid.Column="3" SelectedItem="{Binding Resolution}" Width="140">
+          <ComboBox.Items>
+            <sys:String>daily</sys:String>
+            <sys:String>hour</sys:String>
+            <sys:String>minute</sys:String>
+          </ComboBox.Items>
+        </ComboBox>
+
+        <TextBlock Grid.Row="0" Grid.Column="4" Text="Start:" Margin="12,4,8,4"/>
+  <DatePicker Grid.Row="0" Grid.Column="5" SelectedDate="{Binding StartDateOffset}"/>
+
+  <TextBlock Grid.Row="0" Grid.Column="6" Text="End:" Margin="12,4,8,4"/>
+  <DatePicker Grid.Row="0" Grid.Column="7" SelectedDate="{Binding EndDateOffset}"/>
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Data Dir:" Margin="0,4,8,4"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Text="{Binding DataDirectory}"/>
+        <Button Grid.Row="1" Grid.Column="7" Content="Load" Command="{Binding LoadCommand}"/>
+      </Grid>
+    </StackPanel>
+
+    <StackPanel Margin="0,8,0,0">
+      <DataGrid ItemsSource="{Binding Records}"
+                AutoGenerateColumns="False"
+                Height="400"
+                GridLinesVisibility="Horizontal"
+                CanUserSortColumns="True">
+        <DataGrid.Columns>
+          <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="*"/>
+          <DataGridTextColumn Header="Open" Binding="{Binding Open}" Width="*"/>
+          <DataGridTextColumn Header="High" Binding="{Binding High}" Width="*"/>
+          <DataGridTextColumn Header="Low" Binding="{Binding Low}" Width="*"/>
+          <DataGridTextColumn Header="Close" Binding="{Binding Close}" Width="*"/>
+          <DataGridTextColumn Header="Volume" Binding="{Binding Volume}" Width="*"/>
+        </DataGrid.Columns>
+      </DataGrid>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8" Margin="0,8,0,0">
+        <Button Content="Prev" Command="{Binding PrevPageCommand}"/>
+        <TextBlock Text="{Binding PageNumber}"/>
+        <TextBlock Text="/"/>
+        <TextBlock Text="{Binding TotalPages}"/>
+        <Button Content="Next" Command="{Binding NextPageCommand}"/>
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
 </UserControl>

@@ -1,11 +1,79 @@
 <Window xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:vm="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.ViewModels"
+  xmlns:views="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.Views"
+  xmlns:sys="clr-namespace:System;assembly=System.Runtime"
   x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.LegacyGuiMainWindow"
-  Title="ToolBox GUI"
-        Width="800" Height="600">
-  <StackPanel Margin="12">
-    <TextBlock Text="QuantConnect Interactive Brokers ToolBox" FontSize="18"/>
-    <Button Name="StartButton" Content="Start Download" Width="200" Margin="0,12,0,0"/>
-    <ItemsControl Name="JobsList" Margin="0,12,0,0"/>
-  </StackPanel>
+  Title="QuantConnect IB ToolBox"
+  Width="1000" Height="700"
+  mc:Ignorable="d">
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
+  <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+    <Border Background="#1f1f1f" Padding="12">
+      <TextBlock Text="QuantConnect Interactive Brokers ToolBox" FontSize="20" FontWeight="Bold"/>
+    </Border>
+    <TabControl Grid.Row="1" Margin="12">
+      <TabItem Header="Downloads">
+        <StackPanel>
+          <TextBlock Text="Download" FontSize="16" FontWeight="Bold"/>
+          <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,*" RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Symbol:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Width="140" Text="{Binding Downloads.Symbol}"/>
+
+            <TextBlock Grid.Row="0" Grid.Column="2" Text="Resolution:" Margin="12,4,8,4"/>
+            <ComboBox Grid.Row="0" Grid.Column="3" SelectedItem="{Binding Downloads.Resolution}" Width="140">
+              <ComboBox.Items>
+                <sys:String>daily</sys:String>
+                <sys:String>hour</sys:String>
+                <sys:String>minute</sys:String>
+              </ComboBox.Items>
+            </ComboBox>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="From:" Margin="0,4,8,4"/>
+            <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding Downloads.From}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="To:" Margin="12,4,8,4"/>
+            <DatePicker Grid.Row="1" Grid.Column="3" SelectedDate="{Binding Downloads.To}"/>
+
+            <Button Grid.Row="1" Grid.Column="5" Content="Start" Command="{Binding Downloads.StartCommand}"/>
+          </Grid>
+
+          <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Margin="0,8,0,0" Padding="8">
+            <StackPanel>
+              <TextBlock Text="Jobs" FontWeight="Bold" Margin="0,0,0,4"/>
+              <ItemsControl ItemsSource="{Binding Downloads.Jobs}"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </TabItem>
+      <TabItem Header="Snapshots">
+        <views:SnapshotView />
+      </TabItem>
+      <TabItem Header="Connection">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Interactive Brokers Credentials" FontWeight="Bold"/>
+          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" >
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Width="240" Text="{Binding Connection.Username}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Password:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Width="240" PasswordChar="•" Text="{Binding Connection.Password}"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Account:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Width="240" Text="{Binding Connection.Account}"/>
+
+            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+              <Button Content="Save" Command="{Binding Connection.SaveCommand}"/>
+              <Button Content="Clear" Command="{Binding Connection.ClearCommand}"/>
+              <TextBlock Text="Settings are stored securely per user." VerticalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+  </Grid>
 </Window>

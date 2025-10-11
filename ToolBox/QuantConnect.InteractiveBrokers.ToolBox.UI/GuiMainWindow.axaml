@@ -2,32 +2,47 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.ViewModels"
+        xmlns:views="clr-namespace:QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.Views"
         x:Class="QuantConnect.InteractiveBrokers.ToolBox.UI.Gui.GuiMainWindow"
-        mc:Ignorable="d"
-        Title="Interactive Brokers ToolBox"
-        Width="1200"
-        Height="800">
+        Title="QuantConnect IB ToolBox"
+        Width="1000" Height="700"
+        mc:Ignorable="d">
+  <Design.DataContext>
+    <vm:MainViewModel />
+  </Design.DataContext>
   <Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
-    <StackPanel Orientation="Horizontal"
-          Background="{DynamicResource ThemeAccentBrush}"
-          Margin="12"
-          Spacing="12">
-      <TextBlock Text="Interactive Brokers ToolBox" FontSize="20" FontWeight="Bold" Foreground="White"/>
-      <TextBlock Text="(UI Preview)" VerticalAlignment="Center" Foreground="White"/>
-    </StackPanel>
-
-    <Border Grid.Row="1" Padding="24">
-      <Grid ColumnDefinitions="2*,*">
-        <StackPanel>
-          <TextBlock Text="Downloads" FontSize="18" Margin="0,0,0,8"/>
-          <Button Content="Start Download" Command="{Binding StartCommand}" Width="180"/>
-        </StackPanel>
-
-        <StackPanel Grid.Column="1">
-          <TextBlock Text="Jobs" FontSize="18" Margin="0,0,0,8"/>
-          <ListBox ItemsSource="{Binding Jobs}" Height="400"/>
-        </StackPanel>
-      </Grid>
+    <Border Background="#1f1f1f" Padding="12">
+      <TextBlock Text="QuantConnect Interactive Brokers ToolBox" FontSize="20" FontWeight="Bold"/>
     </Border>
+    <TabControl Grid.Row="1" Margin="12">
+      <TabItem Header="Downloads">
+        <views:DownloadView />
+      </TabItem>
+      <TabItem Header="Snapshots">
+        <views:SnapshotView />
+      </TabItem>
+      <TabItem Header="Connection">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Interactive Brokers Credentials" FontWeight="Bold"/>
+          <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" >
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Username:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Width="240" Text="{Binding Connection.Username}"/>
+
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Password:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Width="240" PasswordChar="•" Text="{Binding Connection.Password}"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Account:" Margin="0,4,8,4"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Width="240" Text="{Binding Connection.Account}"/>
+
+            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+              <Button Content="Save" Command="{Binding Connection.SaveCommand}"/>
+              <Button Content="Clear" Command="{Binding Connection.ClearCommand}"/>
+              <TextBlock Text="Settings are stored securely per user." VerticalAlignment="Center"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
   </Grid>
 </Window>
