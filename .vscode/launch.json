@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run ToolBox UI",
+            "type": "coreclr",
+            "request": "launch",
+            // Run the project via `dotnet run --project` so the project file is used instead of directly invoking the DLL.
+            // Removed preLaunchTask as requested.
+            // Use explicit dotnet executable found on this machine.
+            "program": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI/QuantConnect.InteractiveBrokers.ToolBox.UI.csproj",
+                "--configuration",
+                "Debug"
+            ],
+            "cwd": "${workspaceFolder}/ToolBox/QuantConnect.InteractiveBrokers.ToolBox.UI",
+            "console": "integratedTerminal",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}

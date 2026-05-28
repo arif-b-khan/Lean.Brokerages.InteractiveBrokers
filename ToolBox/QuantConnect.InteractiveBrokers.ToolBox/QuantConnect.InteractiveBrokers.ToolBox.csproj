@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>QuantConnect.InteractiveBrokers.ToolBox</AssemblyName>
+    <RootNamespace>QuantConnect.InteractiveBrokers.ToolBox</RootNamespace>
+    <AssemblyTitle>QuantConnect Interactive Brokers Data Download ToolBox</AssemblyTitle>
+    <Description>Console application for downloading historical data from Interactive Brokers in LEAN format</Description>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="QuantConnect.Lean.Engine" Version="2.5.*" />
+    <PackageReference Include="QuantConnect.Brokerages" Version="2.5.*" />
+    <PackageReference Include="QuantConnect.IBAutomater" Version="2.0.85">
+      <PrivateAssets>analyzers;build</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Gui/**/*.cs" />
+    <None Remove="Gui/**/*.axaml" />
+  </ItemGroup>
+
+  <!-- The UI is implemented as a separate project. It references the CLI project to reuse data-fetching logic.
+       Avoid referencing the UI from the CLI to prevent circular ProjectReference chains. -->
+
+</Project>
