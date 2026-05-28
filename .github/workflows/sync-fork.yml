@@ -1,0 +1,82 @@
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # daily at 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          # ensure we can push branches back to origin using the provided token
+          persist-credentials: true
+
+      - name: Add upstream
+        run: |
+          git remote add upstream https://github.com/QuantConnect/Lean.Brokerages.InteractiveBrokers.git || true
+          # fetch all refs from upstream so we can reset to the upstream default branch (master)
+          git fetch upstream --prune --no-tags
+
+      - name: Sync master -> main (create sync branch from master and merge to main)
+        run: |
+          set -euo pipefail
+          SYNC_BRANCH=sync/upstream-${{ github.run_id }}
+
+          # ensure we have all refs (don't download tags to save time/traffic)
+          git fetch --all --prune --no-tags
+
+          # configure committer identity so merges created by the runner have a valid author
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+          export GIT_COMMITTER_NAME="${GITHUB_ACTOR}"
+          export GIT_COMMITTER_EMAIL="${GITHUB_ACTOR}@users.noreply.github.com"
+
+          # checkout master (create tracking branch if missing)
+          if git show-ref --verify --quiet refs/heads/master; then
+            git checkout master
+          else
+            git checkout -b master origin/master
+          fi
+
+          # pull latest from origin/master
+          git pull --ff-only origin master || git pull origin master
+
+          # compare master vs main
+          git fetch origin main:refs/remotes/origin/main || true
+          counts=$(git rev-list --left-right --count origin/main...master)
+          behind=$(echo "$counts" | awk '{print $1}')
+          ahead=$(echo "$counts" | awk '{print $2}')
+          echo "master is $ahead commits ahead and $behind commits behind origin/main"
+
+          if [ "$ahead" -gt 0 ]; then
+            echo "Creating sync branch $SYNC_BRANCH from master"
+            git checkout -B "$SYNC_BRANCH" master
+            git push -f origin "$SYNC_BRANCH"
+
+            echo "Merging $SYNC_BRANCH into main"
+            # ensure local main exists and is up to date
+            if git show-ref --verify --quiet refs/heads/main; then
+              git checkout main
+            else
+              git checkout -b main origin/main || git checkout -b main origin/main || git checkout -b main
+            fi
+            git pull --ff-only origin main || git pull origin main
+
+            # perform merge (create merge commit)
+            if git merge --no-ff --no-edit "$SYNC_BRANCH"; then
+              git push origin main
+              echo "Merged $SYNC_BRANCH into main and pushed to origin"
+            else
+              echo "Merge failed due to conflicts. Aborting merge and exiting with error"
+              git merge --abort || true
+              exit 1
+            fi
+          else
+            echo "master is not ahead of main; nothing to sync"
+          fi
