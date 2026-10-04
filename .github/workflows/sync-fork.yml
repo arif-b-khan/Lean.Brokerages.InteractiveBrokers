@@ -2,7 +2,7 @@ name: Sync upstream
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # daily at 02:00 UTC
+    - cron: '0 2 * * 0'   # weekly on Sunday at 02:00 UTC
   workflow_dispatch:
 
 jobs:
